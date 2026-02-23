@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
-import { FiMail, FiLock, FiArrowRight, FiAlertCircle, FiLoader } from 'react-icons/fi';
+import { Mail, Lock, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 import Cookies from 'js-cookie';
 
-const SignIn = () => {
+export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,21 +46,24 @@ const SignIn = () => {
     onSuccess: (res) => {
       const token = res?.token || res?.data?.token || res?.accessToken;
       const userData = res?.user || res?.data?.user || res?.data;
+
       if (token) {
         if (rememberMe) {
           localStorage.setItem('rememberedAdmin', JSON.stringify({ email, password }));
         } else {
           localStorage.removeItem('rememberedAdmin');
         }
+
         Cookies.set('token', token, { expires: 7 });
-        localStorage.setItem('token', token);
-        if (userData) {
-          localStorage.setItem('user', JSON.stringify(userData));
+        if (userData?.role) {
+          Cookies.set('role', userData.role, { expires: 7 });
         }
-        setTimeout(() => {
-          router.push('/');
-          router.refresh();
-        }, 1000);
+
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(userData));
+
+        router.push('/');
+        router.refresh();
       }
     },
   });
@@ -83,18 +86,20 @@ const SignIn = () => {
           </div>
           <p className="mt-4 text-[10px] font-black uppercase tracking-[4px] text-slate-400 italic">Avtorizatsiya</p>
         </div>
+
         {loginMutation.isError && (
-          <div className="mb-6 p-4 border-2 border-red-600 bg-red-50 text-red-600 flex items-center space-x-3 font-bold text-xs uppercase tracking-wider animate-pulse">
-            <FiAlertCircle size={24} className="flex-shrink-0" />
+          <div className="mb-6 p-4 border-2 border-red-600 bg-red-50 text-red-600 flex items-center space-x-3 font-bold text-xs uppercase animate-pulse">
+            <AlertCircle size={24} />
             <span>{(loginMutation.error as Error).message}</span>
           </div>
         )}
+
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1">
             <label className="text-[10px] font-black uppercase tracking-[2px]">Elektron pochta</label>
             <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-black transition-colors">
-                <FiMail size={20} />
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-black">
+                <Mail size={20} />
               </div>
               <input
                 type="email"
@@ -105,11 +110,12 @@ const SignIn = () => {
               />
             </div>
           </div>
+
           <div className="space-y-1">
             <label className="text-[10px] font-black uppercase tracking-[2px]">Parol</label>
             <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-black transition-colors">
-                <FiLock size={20} />
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-black">
+                <Lock size={20} />
               </div>
               <input
                 type="password"
@@ -120,25 +126,35 @@ const SignIn = () => {
               />
             </div>
           </div>
+
           <div className="flex items-center space-x-2 cursor-pointer pt-2">
-            <div onClick={() => setRememberMe(!rememberMe)} className={`w-5 h-5 border-2 border-black flex items-center justify-center ${rememberMe ? 'bg-black' : 'bg-white'}`}>
+            <div 
+              onClick={() => setRememberMe(!rememberMe)} 
+              className={`w-5 h-5 border-2 border-black flex items-center justify-center ${rememberMe ? 'bg-black' : 'bg-white'}`}
+            >
               {rememberMe && <div className="w-2 h-2 bg-white rounded-full"></div>}
             </div>
-            <span onClick={() => setRememberMe(!rememberMe)} className="text-[10px] font-black uppercase tracking-widest select-none cursor-pointer hover:underline">
+            <span onClick={() => setRememberMe(!rememberMe)} className="text-[10px] font-black uppercase select-none">
               Meni eslab qol
             </span>
           </div>
+
           <button
             type="submit"
             disabled={loginMutation.isPending}
             className="w-full bg-black text-white border-2 border-black py-4 flex items-center justify-center space-x-3 font-black uppercase text-xs tracking-[4px] hover:bg-white hover:text-black transition-all active:translate-y-2 disabled:opacity-70 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)]"
           >
-            {loginMutation.isPending ? <FiLoader className="animate-spin text-xl" /> : <><span className="mt-1">Kirish</span><FiArrowRight size={20} /></>}
+            {loginMutation.isPending ? (
+              <Loader2 className="animate-spin text-xl" />
+            ) : (
+              <>
+                <span>Kirish</span>
+                <ArrowRight size={20} />
+              </>
+            )}
           </button>
         </form>
       </div>
     </div>
   );
-};
-
-export default SignIn;
+}

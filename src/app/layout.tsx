@@ -1,13 +1,27 @@
-// src/app/layout.tsx
-import "./globals.css";
-import QueryProvider from "../../providers/QueryProvider";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+import type { Metadata } from "next";
+import "./globals.css";
+import QueryProvider from "../../providers/QueryProvider"; 
+
+export const metadata: Metadata = {
+  title: "Admin CRM System",
+  description: "Neo-brutalist Admin Panel",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="uz">
-      <body className="antialiased font-sans">
+
+    <html lang="uz" suppressHydrationWarning>
+      <body 
+        className="antialiased font-sans" 
+        suppressHydrationWarning
+      >
         <QueryProvider>
-          {/* Sidebar yo'q, hamma sahifa shu yerga keladi */}
+          
           {children} 
         </QueryProvider>
       </body>

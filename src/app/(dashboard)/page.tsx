@@ -13,7 +13,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Statistika kartalari */}
+
         <div className="bg-green-400 border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <p className="text-[10px] font-black uppercase">Talabalar</p>
           <p className="text-4xl font-black mt-2">1,250</p>
