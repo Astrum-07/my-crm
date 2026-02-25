@@ -1,7 +1,7 @@
-
 import type { Metadata } from "next";
 import "./globals.css";
 import QueryProvider from "../../providers/QueryProvider"; 
+import { ThemeProvider } from "../../components/theme-provider";
 
 export const metadata: Metadata = {
   title: "Admin CRM System",
@@ -14,16 +14,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-
     <html lang="uz" suppressHydrationWarning>
       <body 
-        className="antialiased font-sans" 
+        className="antialiased font-sans bg-white dark:bg-zinc-950 text-black dark:text-white transition-colors duration-300" 
         suppressHydrationWarning
       >
-        <QueryProvider>
-          
-          {children} 
-        </QueryProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <QueryProvider>
+            {children} 
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

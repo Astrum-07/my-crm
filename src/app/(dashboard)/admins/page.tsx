@@ -19,8 +19,6 @@ interface Admin {
   role: string;
   status: string;
   work_date?: string;
-  active: boolean;
-  is_deleted: boolean;
 }
 
 const Admins = () => {
@@ -53,29 +51,17 @@ const Admins = () => {
 
   const createMutation = useMutation({
     mutationFn: async (newData: any) => {
-      const payload = {
-        ...newData,
-        role: "admin",
-        status: "faol",
-        active: true,
-        is_deleted: false
-      };
+      const payload = { ...newData, role: "admin", status: "faol", active: true, is_deleted: false };
       return await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/staff/create-admin`, payload, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admins'] });
-      toast.success("Admin muvaffaqiyatli yaratildi");
+      toast.success("Admin yaratildi");
       setIsAddModalOpen(false);
     },
-    onError: (err: any) => {
-      const msg = err.response?.data?.message || "Xatolik yuz berdi";
-      toast.error(msg);
-    }
+    onError: (err: any) => toast.error(err.response?.data?.message || "Xatolik")
   });
 
   const deleteMutation = useMutation({
@@ -87,20 +73,7 @@ const Admins = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admins'] });
-      toast.success("Admin o'chirildi");
-      setActiveMenuId(null);
-    }
-  });
-
-  const returnWorkMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/staff/return-work-staff`, { _id: id }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admins'] });
-      toast.success("Xodim ishga qaytarildi");
+      toast.success("O'chirildi");
       setActiveMenuId(null);
     }
   });
@@ -113,207 +86,136 @@ const Admins = () => {
   if (!isMounted) return null;
 
   return (
-    <div className="space-y-8 pb-10 text-black font-sans">
+    <div className="space-y-8 pb-10 font-sans transition-colors duration-300">
       {isAddModalOpen && (
-        <AdminFormModal 
-          onClose={() => setIsAddModalOpen(false)} 
-          onSubmit={(data: any) => createMutation.mutate(data)}
-          isLoading={createMutation.isPending}
-        />
+        <AdminFormModal onClose={() => setIsAddModalOpen(false)} onSubmit={(data: any) => createMutation.mutate(data)} isLoading={createMutation.isPending} />
       )}
 
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black uppercase tracking-tighter italic">Adminlar</h1>
-          <p className="text-slate-400 font-bold text-sm uppercase">Boshqaruv tizimi</p>
+          {/* Adminlar so'zi har doim qora va sariq fonda bo'ladi (dark modeda ham) */}
+          <div className="bg-yellow-400 border-4 border-black px-4 py-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] inline-block">
+            <h1 className="text-5xl font-black uppercase tracking-tighter italic text-black">
+              Adminlar
+            </h1>
+          </div>
+          <p className="text-slate-500 dark:text-zinc-400 font-bold text-xs uppercase tracking-[2px] mt-2 ml-1">Tizim Boshqaruvi</p>
         </div>
         
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative group flex-1 min-w-[250px]">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="relative group flex-1 min-w-[260px]">
             <input 
               type="text"
+              placeholder="Qidirish..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white border-2 border-black font-bold text-sm focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] outline-none transition-all"
+              className="w-full pl-12 pr-4 py-4 bg-white dark:bg-zinc-900 border-4 border-black dark:border-white font-bold text-sm text-black dark:text-white focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:focus:shadow-[4px_4px_0px_0px_white] outline-none transition-all"
             />
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2" size={18} />
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-black dark:text-white" size={20} />
           </div>
 
           <div className="relative">
             <select 
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="appearance-none bg-white border-2 border-black pl-4 pr-10 py-3 font-black uppercase text-[10px] tracking-widest focus:outline-none cursor-pointer"
+              className="appearance-none bg-white dark:bg-zinc-900 border-4 border-black dark:border-white pl-4 pr-12 py-4 font-black uppercase text-xs text-black dark:text-white tracking-widest focus:outline-none cursor-pointer"
             >
               <option value="All">Barchasi</option>
               <option value="faol">Faol</option>
               <option value="ishdan bo'shatilgan">Bo'shatilgan</option>
             </select>
-            <FiFilter className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <FiFilter className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-black dark:text-white" />
           </div>
 
           <button 
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center justify-center gap-3 px-8 py-3.5 bg-black text-white border-2 border-black font-black uppercase text-xs shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 transition-all hover:bg-white hover:text-black"
+            className="flex items-center justify-center gap-3 px-8 py-4 bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-white font-black uppercase text-sm shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_white] active:translate-y-1 hover:bg-yellow-400 hover:text-black transition-all"
           >
-            <FiUserPlus size={18} /> Qo'shish
+            <FiUserPlus size={20} strokeWidth={3} /> Qo'shish
           </button>
         </div>
       </div>
 
-      <div className="bg-white border-[4px] border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-visible">
-        <div className="overflow-x-auto">
-          {isPending ? (
-            <div className="py-20 flex flex-col items-center justify-center space-y-4">
-              <FiLoader className="text-5xl animate-spin" />
-              <p className="font-black uppercase tracking-widest text-[10px] text-slate-400">Yuklanmoqda...</p>
+      <div className="grid grid-cols-1 gap-4">
+        {isPending ? (
+          <div className="py-20 flex flex-col items-center justify-center space-y-4">
+            <FiLoader className="text-6xl animate-spin text-black dark:text-white" />
+            <p className="font-black uppercase tracking-widest text-black dark:text-white">Yuklanmoqda...</p>
+          </div>
+        ) : filteredAdmins.map((admin) => (
+          <div 
+            key={admin._id} 
+            className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white p-5 flex flex-col md:flex-row items-center justify-between shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_white] hover:translate-x-[-2px] transition-all text-black dark:text-white"
+          >
+            <div className="flex items-center gap-6 w-full md:w-1/3">
+              <div className="w-14 h-14 bg-yellow-400 border-2 border-black flex items-center justify-center font-black text-xl text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                {admin.first_name?.[0]}{admin.last_name?.[0]}
+              </div>
+              <div>
+                <h3 className="font-black uppercase text-lg leading-none">{admin.first_name} {admin.last_name}</h3>
+                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">ID: {admin._id.slice(-8)}</p>
+              </div>
             </div>
-          ) : isError ? (
-            <div className="py-20 text-center flex flex-col items-center">
-              <FiAlertCircle size={40} className="text-red-600 mb-2" />
-              <p className="font-black uppercase">Ma'lumot olishda xato</p>
-              <button onClick={() => refetch()} className="mt-4 border-2 border-black px-4 py-1 font-bold text-xs uppercase">Qayta urinish</button>
+
+            <div className="w-full md:w-1/3 flex items-center justify-center md:justify-start gap-2 py-4 md:py-0">
+              <FiMail className="text-slate-400" />
+              <span className="font-bold text-sm italic">{admin.email}</span>
             </div>
-          ) : (
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-black text-white uppercase text-[11px] font-black tracking-widest">
-                  <th className="py-5 px-6 border-r border-white/20 text-black bg-slate-200">Foydalanuvchi</th>
-                  <th className="py-5 px-6 border-r border-white/20 hidden md:table-cell text-black bg-slate-100">Email</th>
-                  <th className="py-5 px-6 border-r border-white/20 text-center text-black bg-slate-200">Holat</th>
-                  <th className="py-5 px-6 text-center text-black bg-slate-100">Amallar</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y-4 divide-black">
-                {filteredAdmins.length === 0 ? (
-                  <tr><td colSpan={4} className="py-10 text-center font-bold text-slate-400 uppercase">Ma'lumot topilmadi</td></tr>
-                ) : (
-                  filteredAdmins.map((admin) => (
-                    <tr key={admin._id} className="hover:bg-yellow-50 transition-colors">
-                      <td className="py-5 px-6">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 border-2 border-black bg-yellow-400 flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black font-black uppercase text-lg">
-                            {admin.first_name?.[0]}{admin.last_name?.[0]}
-                          </div>
-                          <div>
-                            <p className="font-black text-sm uppercase leading-none">{admin.first_name} {admin.last_name}</p>
-                            <p className="text-slate-400 text-[9px] font-bold mt-1 uppercase tracking-tighter">ID: {admin._id.slice(-6)}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-5 px-6 hidden md:table-cell font-bold text-xs italic text-slate-600">
-                        {admin.email}
-                      </td>
-                      <td className="py-5 px-6 text-center">
-                        <div className="flex items-center justify-center space-x-2 font-black text-[10px] uppercase">
-                          {admin.status === 'faol' ? <FiCheckCircle className="text-green-600" size={18} /> : <FiXCircle className="text-red-600" size={18} />}
-                          <span className={admin.status !== 'faol' ? 'text-red-600' : 'text-black'}>{admin.status}</span>
-                        </div>
-                      </td>
-                      <td className="py-5 px-6 text-center relative">
-                        <button 
-                          onClick={() => setActiveMenuId(activeMenuId === admin._id ? null : admin._id)}
-                          className="p-3 border-2 border-black hover:bg-black hover:text-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                        >
-                          <FiMoreHorizontal size={20} />
-                        </button>
-                        {activeMenuId === admin._id && (
-                          <div className="absolute right-6 top-16 z-50 bg-white border-4 border-black w-48 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-in slide-in-from-top-2">
-                            {admin.status === "ishdan bo'shatilgan" ? (
-                              <button 
-                                onClick={() => returnWorkMutation.mutate(admin._id)}
-                                disabled={returnWorkMutation.isPending}
-                                className="w-full flex items-center gap-3 px-4 py-3 text-green-600 font-black uppercase text-[10px] hover:bg-green-50 border-b-2 border-black"
-                              >
-                                <FiRefreshCw /> {returnWorkMutation.isPending ? "..." : "Ishga qaytarish"}
-                              </button>
-                            ) : (
-                              <button 
-                                onClick={() => { if(window.confirm("Admin o'chirilsinmi?")) deleteMutation.mutate(admin._id); }}
-                                disabled={deleteMutation.isPending}
-                                className="w-full flex items-center gap-3 px-4 py-3 text-red-600 font-black uppercase text-[10px] hover:bg-red-50 border-b-2 border-black"
-                              >
-                                <FiTrash2 /> {deleteMutation.isPending ? "..." : "O'chirish"}
-                              </button>
-                            )}
-                            <button onClick={() => setActiveMenuId(null)} className="w-full flex items-center gap-3 px-4 py-3 font-black uppercase text-[10px] hover:bg-slate-100">
-                              <FiX /> Yopish
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))
+
+            <div className="flex items-center justify-between w-full md:w-1/3 md:justify-end gap-8">
+              <div className="flex items-center gap-2">
+                {admin.status === 'faol' ? <FiCheckCircle className="text-green-500" size={20} /> : <FiXCircle className="text-red-500" size={20} />}
+                <span className="font-black uppercase text-xs tracking-widest">{admin.status}</span>
+              </div>
+
+              <div className="relative">
+                <button 
+                  onClick={() => setActiveMenuId(activeMenuId === admin._id ? null : admin._id)}
+                  className="p-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all"
+                >
+                  <FiMoreHorizontal size={20} strokeWidth={3} />
+                </button>
+
+                {activeMenuId === admin._id && (
+                  <div className="absolute right-0 top-14 z-50 bg-white dark:bg-zinc-900 border-4 border-black dark:border-white w-48 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_white]">
+                    <button 
+                      onClick={() => { if(window.confirm("O'chirilsinmi?")) deleteMutation.mutate(admin._id); }}
+                      className="w-full flex items-center gap-3 px-4 py-4 text-red-600 font-black uppercase text-xs hover:bg-red-50 dark:hover:bg-red-900/30 border-b-2 border-black dark:border-white"
+                    >
+                      <FiTrash2 /> O'chirish
+                    </button>
+                    <button onClick={() => setActiveMenuId(null)} className="w-full flex items-center gap-3 px-4 py-4 text-black dark:text-white font-black uppercase text-xs hover:bg-slate-100 dark:hover:bg-zinc-800">
+                      <FiX /> Yopish
+                    </button>
+                  </div>
                 )}
-              </tbody>
-            </table>
-          )}
-        </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
 const AdminFormModal = ({ onClose, onSubmit, isLoading }: any) => {
-  const [form, setForm] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-    password: "",
-    work_date: new Date().toISOString().split('T')[0]
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const [form, setForm] = useState({ first_name: "", last_name: "", email: "", password: "", work_date: new Date().toISOString().split('T')[0] });
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-      <div className="bg-white border-[4px] border-black w-full max-w-lg p-8 shadow-[20px_20px_0px_0px_rgba(0,0,0,1)] relative">
-        <button onClick={onClose} className="absolute top-4 right-4 p-2 border-2 border-black hover:bg-black hover:text-white transition-all"><FiX size={20} /></button>
-        <h2 className="text-3xl font-black uppercase italic tracking-tighter border-b-8 border-black inline-block mb-8">Yangi Admin</h2>
-        
-        <form onSubmit={(e) => { e.preventDefault(); onSubmit(form); }} className="space-y-5 font-bold">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <div className="bg-white dark:bg-zinc-950 border-[4px] border-black dark:border-white w-full max-w-lg p-10 shadow-[20px_20px_0px_0px_rgba(0,0,0,1)] dark:shadow-[20px_20px_0px_0px_white] relative text-black dark:text-white">
+        <button onClick={onClose} className="absolute top-4 right-4 p-2 border-2 border-black dark:border-white text-black dark:text-white"><FiX size={24} /></button>
+        <h2 className="text-4xl font-black uppercase italic tracking-tighter border-b-8 border-black dark:border-white inline-block mb-10">Yangi Admin</h2>
+        <form onSubmit={(e) => { e.preventDefault(); onSubmit(form); }} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-widest text-slate-400">Ism</label>
-              <div className="relative">
-                <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input name="first_name" value={form.first_name} onChange={handleChange} className="w-full pl-10 p-3 border-2 border-black outline-none focus:bg-yellow-50 text-black" required />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-widest text-slate-400">Familiya</label>
-              <input name="last_name" value={form.last_name} onChange={handleChange} className="w-full p-3 border-2 border-black outline-none focus:bg-yellow-50 text-black" required />
-            </div>
+            <input placeholder="Ism" onChange={e => setForm({...form, first_name: e.target.value})} className="w-full p-4 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-bold outline-none" required />
+            <input placeholder="Familiya" onChange={e => setForm({...form, last_name: e.target.value})} className="w-full p-4 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-bold outline-none" required />
           </div>
-
-          <div className="space-y-1">
-            <label className="text-[10px] uppercase tracking-widest text-slate-400">Email Manzil</label>
-            <div className="relative">
-              <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input name="email" type="email" value={form.email} onChange={handleChange} className="w-full pl-10 p-3 border-2 border-black outline-none focus:bg-yellow-50 text-black" required />
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-[10px] uppercase tracking-widest text-slate-400">Maxfiy Parol</label>
-            <div className="relative">
-              <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input name="password" type="password" value={form.password} onChange={handleChange} className="w-full pl-10 p-3 border-2 border-black outline-none focus:bg-yellow-50 text-black" required minLength={8} />
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-[10px] uppercase tracking-widest text-slate-400">Ish boshlagan sana</label>
-            <div className="relative">
-              <FiCalendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input name="work_date" type="date" value={form.work_date} onChange={handleChange} className="w-full pl-10 p-3 border-2 border-black outline-none focus:bg-yellow-50 text-black uppercase text-xs" required />
-            </div>
-          </div>
-
-          <button type="submit" disabled={isLoading} className="w-full bg-black text-white border-[3px] border-black p-5 font-black uppercase text-sm shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] active:translate-x-2 active:translate-y-2 flex justify-center items-center gap-3 disabled:opacity-50">
-            {isLoading ? <FiLoader className="animate-spin" /> : <><FiCheck size={20} /> Saqlash va Yaratish</>}
+          <input type="email" placeholder="Email" onChange={e => setForm({...form, email: e.target.value})} className="w-full p-4 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-bold outline-none" required />
+          <input type="password" placeholder="Parol" onChange={e => setForm({...form, password: e.target.value})} className="w-full p-4 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-bold outline-none" required />
+          <input type="date" value={form.work_date} onChange={e => setForm({...form, work_date: e.target.value})} className="w-full p-4 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-bold outline-none" required />
+          <button type="submit" disabled={isLoading} className="w-full bg-black dark:bg-white text-white dark:text-black border-[4px] border-black dark:border-white p-6 font-black uppercase text-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,0.3)] active:translate-x-2 active:translate-y-2 flex justify-center items-center gap-3">
+            {isLoading ? <FiLoader className="animate-spin" /> : "Tizimga Qo'shish"}
           </button>
         </form>
       </div>

@@ -29,8 +29,8 @@ const Sidebar = () => {
     router.refresh();
   };
 
-  const activeClass = "flex items-center gap-4 px-4 py-3 bg-white text-black border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all";
-  const inactiveClass = "flex items-center gap-4 px-4 py-3 text-black border-2 border-transparent hover:border-black hover:rounded-xl transition-all";
+  const activeClass = "flex items-center gap-4 px-4 py-3 bg-white dark:bg-zinc-900 text-black dark:text-white border-2 border-black dark:border-white rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_white] transition-all";
+  const inactiveClass = "flex items-center gap-4 px-4 py-3 text-black dark:text-zinc-400 border-2 border-transparent hover:border-black dark:hover:border-white dark:hover:text-white hover:rounded-xl transition-all";
 
   const menuItems = [
     { name: "Asosiy", path: "/", icon: <FiHome size={24} /> },
@@ -49,14 +49,14 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-white text-black border-r-2 border-black font-sans">
+    <div className="flex flex-col h-full bg-white dark:bg-zinc-950 text-black dark:text-white border-r-2 border-black dark:border-white font-sans transition-colors duration-300">
       <div className="p-6">
         <h1 className="text-2xl font-black tracking-tight uppercase">Admin CRM</h1>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-6">
         <div>
-          <h2 className="text-[10px] font-black uppercase tracking-[2px] mb-4 px-2 text-slate-400">Asosiy Menu</h2>
+          <h2 className="text-[10px] font-black uppercase tracking-[2px] mb-4 px-2 text-slate-400 dark:text-zinc-500">Asosiy Menu</h2>
           <div className="space-y-1">
             {menuItems.map((item) => (
               <Link 
@@ -72,7 +72,7 @@ const Sidebar = () => {
         </div>
 
         <div>
-          <h2 className="text-[10px] font-black uppercase tracking-[2px] mb-4 px-2 text-slate-400">Boshqalar</h2>
+          <h2 className="text-[10px] font-black uppercase tracking-[2px] mb-4 px-2 text-slate-400 dark:text-zinc-500">Boshqalar</h2>
           <div className="space-y-1">
             {secondaryItems.map((item) => (
               <Link 
@@ -87,7 +87,7 @@ const Sidebar = () => {
             
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-4 px-4 py-3 text-red-600 border-2 border-transparent hover:border-red-600 hover:rounded-xl transition-all"
+              className="w-full flex items-center gap-4 px-4 py-3 text-red-600 dark:text-red-500 border-2 border-transparent hover:border-red-600 dark:hover:border-red-500 hover:rounded-xl transition-all"
             >
               <FiLogOut size={24} />
               <span className="font-bold text-lg uppercase tracking-wider">Chiqish</span>
